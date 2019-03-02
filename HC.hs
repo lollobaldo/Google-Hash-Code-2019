@@ -9,7 +9,7 @@ import System.IO
 type Slideshow = [Pic]
 type Pic = (Int, Ori, Set.Set String)
 type Tag = String
-type Ori = String
+type Ori = Char
 
 main = do
     contents1 <- readFile "C:\\Users\\Lorenzo\\Desktop\\127_001\\PHYTON\\GHimp1.txt"
@@ -35,7 +35,7 @@ doE = unlines . ("40000":) . map (\x -> show x ++ " " ++ show (x+1)) $ [0,2..799
 parse :: String -> Slideshow
 --parse str = zip [0..] (map words . tail . lines $ str)
 --parse str = [(id, or, xs) | (id,[or:_:xs]) <- zip [0..] (map words . tail . lines $ str)]
-parse str = [(id, "H", makeSet xs) | (id,("H":_:xs)) <- zip [0..] (map words . tail . lines $ str)]
+parse str = [(id, 'H', makeSet xs) | (id,("H":_:xs)) <- zip [0..] (map words . tail . lines $ str)]
 
 printer :: Slideshow -> String
 printer ls = unlines $ (show (length ls)) : map (\(id,_,_) -> show id) ls
@@ -51,14 +51,6 @@ findScore [_] = 0
 findScore (x:y:zs) = cuple x y + findScore (y:zs)
 
 cuple :: Pic -> Pic -> Int
-cuple (_,_,t1) (_,_,t2) = minimum . map Set.size $ [inte, Set.difference t1 inte, Set.difference t2 inte]
+cuple (_,_,t1) (_,_,t2) = minimum [inte, (Set.size t1 - inte), (Set.size t2 - inte)]
   where
-    inte = Set.intersection t1 t2
-
-shuffleList :: [a] -> IO [a]
-shuffleList [] = return [] -- An empty list cannot be shuffled more
-shuffleList [x] = return [x] -- A list with one element cannot be shuffled more
-shuffleList as = do
-    i <- randomRIO (0,length as-1)
-    shuffledRest <- shuffleList (take i as ++ drop (i+1) as)
-    return $ (as !! i) : shuffledRest
+    inte = Set.size $ Set.intersection t1 t2
